@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 
+
 class MaskConv(nn.Module):
     def __init__(self, seq_module):
         super(MaskConv, self).__init__()
@@ -63,9 +64,9 @@ class EncoderRNN(nn.Module):
         rnn_input_dims = int(math.floor(input_size + 2 * 20 - 41) / 2 + 1)
         rnn_input_dims = int(math.floor(rnn_input_dims + 2 * 10 - 21) / 2 + 1)
         rnn_input_dims *= outputs_channel
-        
-        self.rnn =  self.rnn_cell(rnn_input_dims, self.hidden_size, self.n_layers, dropout=self.dropout_p, bidirectional=self.bidirectional)
 
+        self.rnn = self.rnn_cell(rnn_input_dims, self.hidden_size, self.n_layers, dropout=self.dropout_p,
+                                 bidirectional=self.bidirectional)
 
     def forward(self, input_var, input_lengths=None):
         """
@@ -75,30 +76,29 @@ class EncoderRNN(nn.Module):
 
         output_lengths = self.get_seq_lens(input_lengths)
 
-        x = input_var # (B,1,D,T)
-        x, _ = self.conv(x, output_lengths) # (B, C, D, T)
-        
+        x = input_var  # (B,1,D,T)
+        x, _ = self.conv(x, output_lengths)  # (B, C, D, T)
+
         x_size = x.size()
-        x = x.view(x_size[0], x_size[1] * x_size[2], x_size[3]) # (B, C * D, T)
-        x = x.permute(0, 2, 1).contiguous() # (B,T,D)
+        x = x.view(x_size[0], x_size[1] * x_size[2], x_size[3])  # (B, C * D, T)
+        x = x.permute(0, 2, 1).contiguous()  # (B,T,D)
 
         total_length = x_size[3]
         x = nn.utils.rnn.pack_padded_sequence(x,
-                                              output_lengths,
+                                              output_lengths.to('cpu'),
                                               batch_first=True,
                                               enforce_sorted=False)
-        x, h_state = self.rnn(x)
+        x, h_state = self.rnn(x.to('cuda'))
         x, _ = nn.utils.rnn.pad_packed_sequence(x,
                                                 batch_first=True,
                                                 total_length=total_length)
 
         return x, h_state
 
-
     def get_seq_lens(self, input_length):
         seq_len = input_length
         for m in self.conv.modules():
-            if type(m) == nn.modules.conv.Conv2d :
+            if type(m) == nn.modules.conv.Conv2d:
                 seq_len = ((seq_len + 2 * m.padding[1] - m.dilation[1] * (m.kernel_size[1] - 1) - 1) / m.stride[1] + 1)
 
         return seq_len.int()
