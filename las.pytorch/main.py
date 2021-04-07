@@ -131,7 +131,6 @@ def train(model, data_loader, criterion, optimizer, device, epoch, train_sampler
         cer = float(dist / length) * 100
 
         total_sent_num += target.size(0)
-        torch.cuda.empty_cache()
         if i == loader_length - 1:
             print('Epoch: [{0}]\t'
                   'Loss {loss:.4f}\t'
@@ -209,7 +208,7 @@ def main():
     parser.add_argument('--no-bidirectional', dest='bidirectional', action='store_false', default=True,
                         help='Turn off bi-directional RNNs, introduces lookahead convolution')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size in training (default: 32)')
-    parser.add_argument('--num_workers', type=int, default=0, help='Number of workers in dataset loader (default: 4)')
+    parser.add_argument('--num_workers', type=int, default=4, help='Number of workers in dataset loader (default: 4)')
     parser.add_argument('--num_gpu', type=int, default=1, help='Number of gpus (default: 1)')
     parser.add_argument('--epochs', type=int, default=100, help='Number of max epochs in training (default: 100)')
     parser.add_argument('--lr', type=float, default=3e-4, help='Learning rate (default: 3e-4)')
@@ -219,7 +218,7 @@ def main():
     parser.add_argument('--max_len', type=int, default=80, help='Maximum characters of sentence (default: 80)')
     parser.add_argument('--max-norm', default=400, type=int, help='Norm cutoff to prevent explosion of gradients')
     # Audio Config
-    parser.add_argument('--sample-rate', default=6000, type=int, help='Sampling Rate')
+    parser.add_argument('--sample-rate', default=16000, type=int, help='Sampling Rate')
     parser.add_argument('--window-size', default=.02, type=float, help='Window size for spectrogram')
     parser.add_argument('--window-stride', default=.01, type=float, help='Window stride for spectrogram')
     # System
