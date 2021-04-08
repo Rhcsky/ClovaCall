@@ -195,7 +195,7 @@ def main():
     parser.add_argument('--train-file', type=str,
                         help='data list about train dataset', default='data/ClovaCall/train_ClovaCall.json')
     parser.add_argument('--test-file-list', nargs='*',
-                        help='data list about test dataset', default=['data/ClovaCall/test_ClovCall.json'])
+                        help='data list about test dataset', default=['data/ClovaCall/test_ClovaCall.json'])
     parser.add_argument('--labels-path', default='data/kor_syllable.json', help='Contains large characters over korean')
     parser.add_argument('--dataset-path', default='data/ClovaCall/clean', help='Target dataset path')
     # Hyperparameters
