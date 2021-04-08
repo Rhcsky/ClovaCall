@@ -361,10 +361,9 @@ def main():
             print("Shuffling batches...")
             train_sampler.shuffle(epoch)
 
-            if (epoch + 1) % 2 == 0:
-                for g in optimizer.param_groups:
-                    g['lr'] = g['lr'] / args.learning_anneal
-                print('Learning rate annealed to: {lr:.6f}'.format(lr=g['lr']))
+            for g in optimizer.param_groups:
+                g['lr'] = g['lr'] / args.learning_anneal
+            print('Learning rate annealed to: {lr:.6f}'.format(lr=g['lr']))
 
 
 if __name__ == "__main__":
