@@ -1,4 +1,4 @@
-#!/bin/bash --utf8
+#!/bin/bash
 
 MAIN_DIR=${0%/*}
 
@@ -25,16 +25,16 @@ fi
 ##	Careful while modifying lines above.
 ################################################################
 
-TRAIN_FILE=data/ClovaCall/train_ClovaCall.json
-TEST_FILE=data/ClovaCall/test_ClovaCall.json
+TRAIN_FILE=data/AIhub/train.json
+TEST_FILE=data/AIhub/eval.json
 LABEL_FILE=data/kor_syllable.json
-DATASET_PATH=data/ClovaCall/clean
+DATASET_PATH=data/AIhub/KsponSpeech
 
 CUDA_DEVICE_ID=0
 
 # Default
 RNN_TYPE=LSTM
-BATCH_SIZE=32
+BATCH_SIZE=16
 LR=3e-4
 LR_ANNEAL=1.1
 DROPOUT=0.3
@@ -76,7 +76,7 @@ if [ ! -d $LOG_CHILD_PATH ]; then
 fi
 
 CUDA_VISIBLE_DEVICES=$CUDA_DEVICE_ID \
-  python3 -u $TARGET_CODE \
+  python -u $TARGET_CODE \
   --batch_size $BATCH_SIZE \
   --num_workers $CPU_SIZE \
   --num_gpu $GPU_SIZE \
@@ -90,7 +90,7 @@ CUDA_VISIBLE_DEVICES=$CUDA_DEVICE_ID \
   --train-file $TRAIN_FILE --test-file-list $TEST_FILE \
   --labels-path $LABEL_FILE \
   --dataset-path $DATASET_PATH \
-  --cuda --save-folder $CUR_MODEL_PATH --model-path $CUR_MODEL_PATH/final.pth --log-path $LOG_CHILD_PATH | tee $LOG_FILE
+  --cuda --save-folder $CUR_MODEL_PATH --model-path ${CUR_MODEL_PATH}_only_clova/final.pth --log-path $LOG_CHILD_PATH --load-model --finetune | tee $LOG_FILE
 
 # If you want to continue training from previous model or finetuning, add these commands.
 # --load-model
