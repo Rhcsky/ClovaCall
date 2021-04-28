@@ -197,7 +197,7 @@ def main():
     parser.add_argument('--test-file-list', nargs='*',
                         help='data list about test dataset', default=['data/ClovaCall/test_ClovaCall.json'])
     parser.add_argument('--labels-path', default='data/kor_syllable.json', help='Contains large characters over korean')
-    parser.add_argument('--dataset-path', default='data/ClovaCall/wavs_train', help='Target dataset path')
+    parser.add_argument('--dataset-path', default='data/ClovaCall/clean', help='Target dataset path')
     # Hyperparameters
     parser.add_argument('--rnn-type', default='lstm', help='Type of the RNN. rnn|gru|lstm are supported')
     parser.add_argument('--encoder_layers', type=int, default=3, help='number of layers of model (default: 3)')
@@ -223,7 +223,7 @@ def main():
     parser.add_argument('--window-stride', default=.01, type=float, help='Window stride for spectrogram')
     # System
     parser.add_argument('--save-folder', default='models', help='Location to save epoch models')
-    parser.add_argument('--model-path', default='models/las_final.pth', help='Location to save best validation model')
+    parser.add_argument('--model-path', default='models/final.pth', help='Location to save best validation model')
     parser.add_argument('--log-path', default='log/', help='path to predict log about valid and test dataset')
     parser.add_argument('--cuda', action='store_true', default=False, help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=123456, help='random seed (default: 123456)')
