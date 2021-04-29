@@ -23,12 +23,16 @@ fi
 ##	Careful while modifying lines above.
 ################################################################
 
-#DATA=$1
-DATA='Youtube'
+DATA=$1
 
-TEST_FILE=data/${DATA}/test.json
+if [ -n {$2} ]; then
+  TEST_FILE=data/${DATA}/test_${DATA}.json
+else
+  TEST_FILE=data/${DATA}/test_${DATA}_few.json
+fi
+
 LABEL_FILE=data/kor_syllable.json
-DATASET_PATH=data/${DATA}/sound
+DATASET_PATH=data/${DATA}/clean
 
 CUDA_DEVICE_ID=1
 
