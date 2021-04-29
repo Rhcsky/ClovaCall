@@ -1,9 +1,9 @@
+import json
 import os
 import re
-import json
-
-from glob import glob
 from collections import OrderedDict
+from glob import glob
+
 from tqdm import tqdm
 
 kspon_1 = (0, 124000)
@@ -21,6 +21,39 @@ def where_is_wav(num_file):
             return 'NO'
         if num_file <= kspon[1] and num_file >= kspon[0]:
             return f'KsponSpeech_0{i + 1}'
+
+
+def remove_bracket(text):
+    _q_list = []
+    cnt = 0
+    for i, w in enumerate(text):
+        cnt += 1
+        if w == '(':
+            _q_list.append(i)
+        if w == ')':
+            _q_list.append(i)
+
+    if len(_q_list) == 0:
+        return text
+
+    q_list = []
+    for x in range(len(_q_list)):
+        if x % 2 == 0:
+            q_list.append((_q_list[x], _q_list[x + 1]))
+
+    reform_text = ''
+    for i, q in enumerate(q_list):
+        if i % 2 == 0:
+            if i == 0:
+                reform_text += text[:q[0]] + text[q[0] + 1:q[1]]
+            else:
+                reform_text += text[q[0] + 1:q[1]]
+        else:
+            if i + 1 == len(q_list):
+                continue
+            reform_text += text[q[1] + 1:q_list[i + 1][0]]
+
+    return reform_text
 
 
 for file_name in tqdm(glob('AIhub/*.trn')):
@@ -41,12 +74,18 @@ for file_name in tqdm(glob('AIhub/*.trn')):
 
             except:
                 num_file = wav.split('E')[1].split('.')[0]
-
                 base_dir = 'KsponSpeech_Eval'
 
+            text = text.strip()
+            text_length = len(text)
+            if text_length < 3 or text_length > 128:
+                continue
+
+            text = remove_bracket(text)
+
             json_data = OrderedDict()
-            json_data["wav"] = os.path.join(base_dir, wav)
-            json_data["text"] = text.strip()
+            json_data["wav"] = f'{base_dir}/{wav}'
+            json_data["text"] = text
             json_data["speaker_id"] = "0"
             json_list.append(json_data)
 
