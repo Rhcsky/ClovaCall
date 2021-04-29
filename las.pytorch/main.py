@@ -165,6 +165,7 @@ def evaluate(model, data_loader, criterion, device, save_output=False):
 
             logit = logit[:, :target.size(1), :]  # cut over length to calculate loss
             loss = criterion(logit.contiguous().view(-1, logit.size(-1)), target.contiguous().view(-1))
+
             total_loss += loss.item()
             total_num += sum(feat_lengths).item()
 
@@ -215,7 +216,7 @@ def main():
     parser.add_argument('--learning-anneal', default=1.1, type=float, help='Annealing learning rate every epoch')
     parser.add_argument('--teacher_forcing', type=float, default=1.0,
                         help='Teacher forcing ratio in decoder (default: 1.0)')
-    parser.add_argument('--max_len', type=int, default=80, help='Maximum characters of sentence (default: 80)')
+    parser.add_argument('--max_len', type=int, default=128, help='Maximum characters of sentence (default: 128)')
     parser.add_argument('--max-norm', default=400, type=int, help='Norm cutoff to prevent explosion of gradients')
     # Audio Config
     parser.add_argument('--sample-rate', default=16000, type=int, help='Sampling Rate')
