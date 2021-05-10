@@ -21,6 +21,7 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from wcwidth import wcswidth
+from glob import glob
 
 import torch
 import torch.nn as nn
@@ -134,18 +135,18 @@ def evaluate(model, data_loader, criterion, device, save_output=False):
         total_loss += loss.item()
         total_num += sum(feat_lengths).item()
 
-        dist, length, transcripts = get_distance(target, y_hat)
-        cer = float(dist / length) * 100
+        _, _, transcripts = get_distance(target, y_hat)
+        # cer = float(dist / length) * 100
 
-        total_dist += dist
-        total_length += length
+        # total_dist += dist
+        # total_length += length
         if save_output == True:
             transcripts_list += transcripts
         total_sent_num += target.size(0)
 
     aver_loss = total_loss / total_num
-    aver_cer = float(total_dist / total_length) * 100
-    return aver_loss, aver_cer, transcripts_list
+    # aver_cer = float(total_dist / total_length) * 100
+    return aver_loss, _, transcripts_list
 
 
 def main():
@@ -159,10 +160,10 @@ def main():
     parser.add_argument('--model-name', type=str, default='LAS')
     # Dataset
     parser.add_argument('--test-file-list', nargs='*',
-                        help='data list about test dataset', default=['data/ClovaCall/mytest.json'])
+                        help='data list about test dataset', default=['data/Youtube/clean'])
     parser.add_argument('--labels-path', default='data/kor_syllable.json',
                         help='Contains large characters over korean')
-    parser.add_argument('--dataset-path', default='data/ClovaCall/clean', help='Target dataset path')
+    parser.add_argument('--dataset-path', default='data/Youtube/clean', help='Target dataset path')
 
     # Hyperparameters
     parser.add_argument('--rnn-type', default='lstm', help='Type of the RNN. rnn|gru|lstm are supported')
@@ -204,20 +205,23 @@ def main():
                       window_size=args.window_size,
                       window_stride=args.window_stride)
 
-    print(">> Test dataset : ", args.test_file_list)
-    testLoader_dict = {}
-    for test_file in args.test_file_list:
-        with open(test_file, 'r', encoding='utf-8') as f:
-            testData_list = json.load(f)
+    print(">> Test dataset : ", args.dataset_path)
 
-        print(testData_list)
+    testData_list = []
 
-        test_dataset = SpectrogramDataset(audio_conf=audio_conf,
-                                          dataset_path=args.dataset_path,
-                                          data_list=testData_list,
-                                          char2index=char2index, sos_id=SOS_token, eos_id=EOS_token,
-                                          normalize=True)
-        testLoader_dict[test_file] = AudioDataLoader(test_dataset, batch_size=1, num_workers=args.num_workers)
+    for wav_name in sorted(glob(f'{args.dataset_path}/*'), key=lambda i: int(os.path.basename(i)[:-4])):
+        wav_dict = {}
+        wav_dict['wav'] = os.path.basename(wav_name)
+        wav_dict['text'] = os.path.basename(wav_name)
+        wav_dict['speaker_id'] = '0'
+        testData_list.append(wav_dict)
+
+    test_dataset = SpectrogramDataset(audio_conf=audio_conf,
+                                      dataset_path=args.dataset_path,
+                                      data_list=testData_list,
+                                      char2index=char2index, sos_id=SOS_token, eos_id=EOS_token,
+                                      normalize=True)
+    test_loader = AudioDataLoader(test_dataset, batch_size=1, num_workers=args.num_workers)
 
     input_size = int(math.floor((args.sample_rate * args.window_size) / 2) + 1)
     enc = EncoderRNN(input_size, args.encoder_size, n_layers=args.encoder_layers, bidirectional=args.bidirectional,
@@ -238,15 +242,13 @@ def main():
 
     print("Number of parameters: %d" % Seq2Seq.get_param_size(model))
 
-    for test_file in args.test_file_list:
-        test_loader = testLoader_dict[test_file]
-        test_loss, test_cer, transcripts_list = evaluate(model, test_loader, criterion, device, save_output=True)
+    test_loss, test_cer, transcripts_list = evaluate(model, test_loader, criterion, device, save_output=True)
 
-        print(f"{'true':^20} | {'pred':^20}")
-        for line in transcripts_list:
-            print(line)
+    print(f"{'true':^20} | {'pred':^20}")
+    for line in transcripts_list:
+        print(line)
 
-        print("Test {} CER : {}".format(test_file, test_cer))
+    print("Test {} CER : {}".format("test", test_cer))
 
 
 if __name__ == "__main__":

@@ -321,7 +321,7 @@ def main():
     # print(model)
     print("Number of parameters: %d" % Seq2Seq.get_param_size(model))
 
-    # train_model = nn.DataParallel(model)
+    train_model = nn.DataParallel(model)
 
     if args.mode != "train":
         for test_file in args.test_file_list:
@@ -337,7 +337,7 @@ def main():
         begin_epoch = 0
 
         for epoch in range(begin_epoch, args.epochs):
-            train_loss, train_cer = train(model, train_loader, criterion, optimizer, device, epoch, train_sampler,
+            train_loss, train_cer = train(train_model, train_loader, criterion, optimizer, device, epoch, train_sampler,
                                           args.max_norm, args.teacher_forcing)
 
             cer_list = []
@@ -356,7 +356,7 @@ def main():
                     'model': model.state_dict(),
                     'optimizer': optimizer.state_dict()
                 }
-                torch.save(state, args.model_path)
+                torch.save(state, f'{args.save_folder}/final.pth')
                 best_cer = cer_list[0]
 
             print("Shuffling batches...")
