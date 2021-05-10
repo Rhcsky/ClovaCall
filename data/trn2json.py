@@ -16,12 +16,10 @@ kspon_list = [kspon_1, kspon_2, kspon_3, kspon_4, kspon_5]
 
 def where_is_wav(num_file):
     num_file = int(num_file)
-    for i, kspon in enumerate(kspon_list):
-        if i > 0:
-            return 'NO'
+    for idx, kspon in enumerate(kspon_list):
         if num_file <= kspon[1] and num_file >= kspon[0]:
-            return f'KsponSpeech_0{i + 1}'
-
+            return f'KsponSpeech_0{idx+1}'
+    return 'NO'
 
 def remove_bracket(text):
     _q_list = []
