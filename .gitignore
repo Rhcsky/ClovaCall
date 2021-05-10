@@ -130,6 +130,7 @@ dmypy.json
 .idea/
 data/*
 models/*
+logs/*
 
 !data/*.py
 nohup.out
