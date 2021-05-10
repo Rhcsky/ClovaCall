@@ -3,7 +3,8 @@
 MAIN_DIR=${0%/*}
 cd $MAIN_DIR/..
 
-TARGET_CODE=las.pytorch/eval.py
+LABEL_FILE=data/kor_syllable.json
+TARGET_CODE=las.pytorch/folder_eval.py
 MODEL_PATH=models
 
 if [ ! -f $TARGET_CODE ]; then
@@ -22,23 +23,7 @@ fi
 ################################################################
 ##	Careful while modifying lines above.
 ################################################################
-
-DATA=$1
-
-if [ -n {$2} ]; then
-  TEST_FILE=data/${DATA}/test_${DATA}.json
-else
-  TEST_FILE=data/${DATA}/test_${DATA}_few.json
-fi
-
-LABEL_FILE=data/kor_syllable.json
-if [ ${DATA} = "AIhub" ]; then
-  DATASET_PATH=data/${DATA}/KsponSpeech
-else
-  DATASET_PATH=data/${DATA}/clean
-fi
-
-CUDA_DEVICE_ID=1
+CUDA_DEVICE_ID=4
 
 # Default
 RNN_TYPE=LSTM
@@ -63,7 +48,5 @@ CUDA_VISIBLE_DEVICES=$CUDA_DEVICE_ID \
   --rnn-type $RNN_TYPE \
   --encoder_layers $ENCODER_LAYERS --encoder_size $ENCODER_SIZE \
   --decoder_layers $DECODER_LAYERS --decoder_size $DECODER_SIZE \
-  --test-file-list $TEST_FILE \
   --labels-path $LABEL_FILE \
-  --dataset-path $DATASET_PATH \
   --model-path models/final.pth
