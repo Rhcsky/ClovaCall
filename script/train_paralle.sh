@@ -35,7 +35,7 @@ CUDA_DEVICE_ID="0, 1, 2"
 # Default
 RNN_TYPE=LSTM
 BATCH_SIZE=16
-LR=3e-3
+LR=3e-4
 LR_ANNEAL=1.1
 DROPOUT=0.3
 TF_RATIO=1.0
@@ -90,6 +90,7 @@ CUDA_VISIBLE_DEVICES=$CUDA_DEVICE_ID \
   --train-file $TRAIN_FILE --test-file-list $TEST_FILE \
   --labels-path $LABEL_FILE \
   --dataset-path $DATASET_PATH \
+  --load-model --finetune \
   --cuda --save-folder $CUR_MODEL_PATH --model-path ${CUR_MODEL_PATH}/final.pth --log-path $LOG_CHILD_PATH | tee $LOG_FILE
 
   # --finetune --load-model\
